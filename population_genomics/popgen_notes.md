@@ -23,4 +23,13 @@ Shell commanads
 - samtools - indexes reads
 - bcftools - genotypes reads
 
-### 09-17-2024 
+### 09-17-2024 Filtering VCF
+
+- quantile() - makes quartiles
+- heatmap.bp() - heat map
+- SNPflitR - package that filters SNPS
+- hard_filter() - filters based on depth
+- max_depth() - establishes max depth
+- missing_by_sample() - filters individuals with missing data
+- missing_by_SNP() - filters loci
+- write.vcf() - makes VCF 
