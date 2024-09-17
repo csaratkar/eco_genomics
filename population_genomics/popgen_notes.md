@@ -22,3 +22,5 @@ Shell commanads
 - spack load {package} - load a package
 - samtools - indexes reads
 - bcftools - genotypes reads
+
+### 09-17-2024 
