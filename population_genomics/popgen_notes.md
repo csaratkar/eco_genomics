@@ -2,7 +2,7 @@
 
 ## Author: Chanchal Saratkar
 
-### 09-10-2024 - Intro to Centaurea GBS data and working with VCF files
+### 09-10-2024 - Intro to Centaurea GBS data and working with VCF files in 01 VCF filtering.r
 
 We'll be analyzing the GBS data from three regions (Eu, Northeast, Pacific Northwest) starting today with variant call format files (VCF's)
 
@@ -13,17 +13,17 @@ We'll be analyzing the GBS data from three regions (Eu, Northeast, Pacific North
 - fastQ files include a sequence line and a Q-score line
 - The Q-scores in a fastQ file (.fq) are written as a varitety of symbols with letters being at the higher end
 
-### 09-12-2024 Viewing VCF files and talking about 
+### 09-12-2024 Viewing VCF files and talking about in 01 VCF filtering.r
 
 - N50 - # of base pairs in 50% of the reads
 
-Shell commanads
+Shell commands
 
 - spack load {package} - load a package
 - samtools - indexes reads
 - bcftools - genotypes reads
 
-### 09-17-2024 Filtering VCF
+### 09-17-2024 Filtering VCF in 01 VCF filtering.r
 
 - quantile() - makes quartiles
 - heatmap.bp() - heat map
@@ -33,3 +33,10 @@ Shell commanads
 - missing_by_sample() - filters individuals with missing data
 - missing_by_SNP() - filters loci
 - write.vcf() - makes VCF 
+
+### 09-19-2024 Created Manhattan plot in 02_Diversity_Differentiation.R
+
+- X11.options(type="cairo") - helps fix plotting issues
+- @ is used for vcfs instead of $
+- genetic_diff() - helps genetically differentiate
+- manhattan() - creates Manhattan plots
