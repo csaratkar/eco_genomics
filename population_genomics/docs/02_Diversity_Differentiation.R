@@ -6,6 +6,7 @@ library(qqman)
 
 #helps solve plotting issues
 X11.options(type="cairo")
+options(bitmapType = "cairo")
 
 # read in VCF file from our repo outputs/directory
 vcf <- read.vcfR("~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.vcf.gz")
@@ -49,4 +50,27 @@ manhattan(vcf.div.MHplot,
           col = c("blue4", "orange3"),
           logp = FALSE,
           ylab = "Fst among regions",
-          suggestiveline = quantile(vcf.div.MHplot$Gst, 0.999))
+          suggestiveline = quantile(vcf.div.MHplot$Gst, 0.5))
+
+#suggestline - suggests that the region above the line is experiencing a higher level of differentiation
+write.csv(vcf.div.MHplot, "~/Projects/eco_genomics/population_genomics/outputs/Genetic_Diff_byRegion",
+          quote = F,
+          row.names = F)
+
+names(vcf.div.MHplot) #cols 4-9 are where Hs values are
+vcf.div.MHplot %>% 
+  as_tibble() %>% 
+  pivot_longer(c(4:9)) %>% 
+  ggplot(aes(x = value, fill = name)) +
+  geom_histogram(position = "identity",alpha = 0.5, bins = 50)+
+  labs(x = "Gene diversity (Hs) withing Regions", y = "Counts of SNPs", title = "Genome-wide expected heterozygosity (Hs)", fill = "Regions")
+
+ggsave("Histogram_GenomDiversity_byRegion.pdf", 
+       path = "~/Projects/eco_genomics/population_genomics/figures")
+
+vcf.div.MHplot %>% 
+  as_tibble() %>%   
+  pivot_longer(c(4:9)) %>% 
+  group_by(name) %>% 
+  filter(value!=0 & value<0.5) %>% 
+  summarise(avg_Hs=mean(value), sd_Hs = sd(value), N_Hs=n())

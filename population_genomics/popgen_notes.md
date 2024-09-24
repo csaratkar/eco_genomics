@@ -40,3 +40,7 @@ Shell commands
 - @ is used for vcfs instead of $
 - genetic_diff() - helps genetically differentiate
 - manhattan() - creates Manhattan plots
+
+### 09-24-2024
+
+- LEA - package for creating PCAs
