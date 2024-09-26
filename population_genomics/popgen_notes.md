@@ -41,6 +41,25 @@ Shell commands
 - genetic_diff() - helps genetically differentiate
 - manhattan() - creates Manhattan plots
 
-### 09-24-2024
+### 09-24-2024 Created PCA plot
 
 - LEA - package for creating PCAs
+- PCAs are just based on math
+
+### 09-26-2024 - Admixture Analysis
+
+- Admixture Analysis (Structure) - has genetic model (H-W equilibrium)
+- Helps find population structure
+- Groups the population into clusters which is decided by K
+
+1. K has to be chosen
+2. Assign individuals to one of those K groups, can have prior knowledge or not
+3. Calc allele frequencies
+4. Calc 2pq -> observed frequency of heterozygosity
+5. Go back to #2
+
+- Q = fractional ancestry
+- Creates matrix that gives percentages about what group an individual belongs to
+- Cross-validation - train a model on 80% of the data and then give the 20% to analysis then move on to the next 20%
+- The K value that has the lowest cross-validation value
+- No linkage disequilibrium

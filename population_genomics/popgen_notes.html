@@ -356,9 +356,9 @@ display: none;
 <h1>Coding and data notes for the population genetics module</h1>
 <div id="author-chanchal-saratkar" class="section level2">
 <h2>Author: Chanchal Saratkar</h2>
-<div id="intro-to-centaurea-gbs-data-and-working-with-vcf-files" class="section level3">
-<h3>09-10-2024 - Intro to Centaurea GBS data and working with VCF
-files</h3>
+<div id="intro-to-centaurea-gbs-data-and-working-with-vcf-files-in-01-vcf-filtering.r" class="section level3">
+<h3>09-10-2024 - Intro to Centaurea GBS data and working with VCF files
+in 01 VCF filtering.r</h3>
 <p>We’ll be analyzing the GBS data from three regions (Eu, Northeast,
 Pacific Northwest) starting today with variant call format files
 (VCF’s)</p>
@@ -373,16 +373,73 @@ file</li>
 symbols with letters being at the higher end</li>
 </ul>
 </div>
-<div id="viewing-vcf-files-and-talking-about" class="section level3">
-<h3>09-12-2024 Viewing VCF files and talking about</h3>
+<div id="viewing-vcf-files-and-talking-about-in-01-vcf-filtering.r" class="section level3">
+<h3>09-12-2024 Viewing VCF files and talking about in 01 VCF
+filtering.r</h3>
 <ul>
 <li>N50 - # of base pairs in 50% of the reads</li>
 </ul>
-<p>Shell commanads</p>
+<p>Shell commands</p>
 <ul>
 <li>spack load {package} - load a package</li>
 <li>samtools - indexes reads</li>
 <li>bcftools - genotypes reads</li>
+</ul>
+</div>
+<div id="filtering-vcf-in-01-vcf-filtering.r" class="section level3">
+<h3>09-17-2024 Filtering VCF in 01 VCF filtering.r</h3>
+<ul>
+<li>quantile() - makes quartiles</li>
+<li>heatmap.bp() - heat map</li>
+<li>SNPflitR - package that filters SNPS</li>
+<li>hard_filter() - filters based on depth</li>
+<li>max_depth() - establishes max depth</li>
+<li>missing_by_sample() - filters individuals with missing data</li>
+<li>missing_by_SNP() - filters loci</li>
+<li>write.vcf() - makes VCF</li>
+</ul>
+</div>
+<div id="created-manhattan-plot-in-02_diversity_differentiation.r" class="section level3">
+<h3>09-19-2024 Created Manhattan plot in
+02_Diversity_Differentiation.R</h3>
+<ul>
+<li>X11.options(type=“cairo”) - helps fix plotting issues</li>
+<li>@ is used for vcfs instead of $</li>
+<li>genetic_diff() - helps genetically differentiate</li>
+<li>manhattan() - creates Manhattan plots</li>
+</ul>
+</div>
+<div id="created-pca-plot" class="section level3">
+<h3>09-24-2024 Created PCA plot</h3>
+<ul>
+<li>LEA - package for creating PCAs</li>
+<li>PCAs are just based on math</li>
+</ul>
+</div>
+<div id="admixture-analysis" class="section level3">
+<h3>09-26-2024 - Admixture Analysis</h3>
+<ul>
+<li>Admixture Analysis (Structure) - has genetic model (H-W
+equilibrium)</li>
+<li>Helps find population structure</li>
+<li>Groups the population into clusters which is decided by K</li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>K has to be chosen</li>
+<li>Assign individuals to one of those K groups, can have prior
+knowledge or not</li>
+<li>Calc allele frequencies</li>
+<li>Calc 2pq -&gt; observed frequency of heterozygosity</li>
+<li>Go back to #2</li>
+</ol>
+<ul>
+<li>Q = fractional ancestry</li>
+<li>Creates matrix that gives percentages about what group an individual
+belongs to</li>
+<li>Cross-validation - train a model on 80% of the data and then give
+the 20% to analysis then move on to the next 20%</li>
+<li>The K value that has the lowest cross-validation value</li>
+<li>No linkage disequilibrium</li>
 </ul>
 </div>
 </div>

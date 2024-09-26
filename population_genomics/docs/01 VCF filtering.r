@@ -73,3 +73,4 @@ heatmap.bp(DP2[1:5000,],
 write.vcf(vcf.filt.indSNPMiss,
           "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.vcf.gz")
 #Low freq alleles
+

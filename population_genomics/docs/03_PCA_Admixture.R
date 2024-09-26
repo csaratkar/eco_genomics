@@ -17,7 +17,7 @@ vcf.thin <- distance_thin(vcf, min.distance = 500)
 meta <- read.csv("/gpfs1/cl/pbio3990/PopulationGenomics/metadata/meta4vcf.csv")
 dim(meta)
 
-meta2 <- meta[meta$id %in% colnames(vcf.thin@gt[,-1]) , ]
+meta2 <- meta[meta$id %in% colnames(vcf@gt[,-1]) , ]
 dim(meta2)
 
 write.vcf(vcf.thin, "outputs/vcf_final.filtered.thinned.vcf.gz")
@@ -30,5 +30,28 @@ geno <- vcf2geno(input.file = "/gpfs1/home/c/s/csaratka/vcf_final.filtered.thinn
 
 CentPCA <- LEA ::pca("outputs/vcf_final.filtered.thinned.geno", scale = TRUE)
 
+CentPCA <- load.pcaProject("vcf_final.filtered.thinned.pcaProject")
+
+show(CentPCA)
+
+plot(CentPCA) # shows eigenvalues(x), first dot is how useful PC1 is, second dot is how useful PC2 is etc.
+
+# to find the percentages of how much a PC axis explains the variance it is eigenvalue of the axis over the number of eigenvalues
+CentPCA$eigenvalues[1]/sum(CentPCA$eigenvalues) # the % variance explained by PC1
+
 plot(CentPCA$projections,
      col=as.factor(meta2$region))
+
+ggplot(as.data.frame(CentPCA$projections),
+       aes(x = V1, y = V2, color = meta2$region, shape=meta2$continent)) +
+       geom_point(alpha = .5) +
+  labs(title = " Centaurea genetic PCA", x = "PC1(2.2%)", y = "PC2(1.1%)", color = "Region", shape = "Continents") 
+# + lims(x = c(-10,10), y = c(-10,10))
+
+ggsave("figures/CentPCA_PC1vPC2.pdf", width = 6, height = 6, units = "in")
+
+ggplot(as.data.frame(CentPCA$projections),
+       aes(x = V2, y = V3, color = meta2$region, shape=meta2$continent)) +
+  geom_point(alpha = .5) +
+  labs(title = " Centaurea genetic PCA", x = "PC2", y = "PC3", color = "Region", shape = "Continents") 
+# + lims(x = c(-10,10), y = c(-10,10))
