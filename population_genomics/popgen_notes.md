@@ -63,3 +63,8 @@ Shell commands
 - Cross-validation - train a model on 80% of the data and then give the 20% to analysis then move on to the next 20%
 - The K value that has the lowest cross-validation value
 - No linkage disequilibrium
+
+### 10-01-2024 - Admixture Analysis cont.
+
+- Pay attention to the values at the "elbow" of the cross-entropy score plot
+- Goal is to reduce complexity while increasing 

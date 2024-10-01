@@ -55,3 +55,52 @@ ggplot(as.data.frame(CentPCA$projections),
   geom_point(alpha = .5) +
   labs(title = " Centaurea genetic PCA", x = "PC2", y = "PC3", color = "Region", shape = "Continents") 
 # + lims(x = c(-10,10), y = c(-10,10))
+
+# Run Admixture analyses and create plots using the func snmf() in the LEA R package
+
+CentAdmix <-snmf("outputs/vcf_final.filtered.thinned.geno",
+                 K = 1:10,
+                 entropy = TRUE,
+                 repetitions = 3,
+                 project = "new") #if adding to analysis, you can choose project = "continue"
+
+par(mfrow = c(2,1))
+plot(CentAdmix, main = "SNMF", col = "blue4")
+#Pay attention to the "elbow" of the graph, the values you want to focus on 
+
+plot(CentPCA$eigenvalues[1:10], ylab = "Eigen values", xlab = "Number of PCs", col = "blue4", main="PCA")
+dev.off() #resets plotting window
+
+
+myK = 4
+
+CE = cross.entropy(CentAdmix, K = myK)
+best = which.min(CE) #lowest croos entropy value
+
+myKQ = Q(CentAdmix, K = myK, run = best) 
+#dataset of each individuals' percentage ancestry from each K group
+
+myKQmeta = cbind(myKQ, meta2)
+
+my.colors = c("blue4", "gold", "tomato", "lightblue", "olivedrab")
+
+myKQmeta = as_tibble(myKQmeta) %>% 
+  group_by(continent) %>% 
+  arrange(region, pop, .by_group = TRUE)
+
+
+pdf("figures/Admixture_K4.pdf", width = 10, height = 5)
+barplot(as.matrix(t(myKQmeta[ ,1:myK])),
+        border = NA,
+        space = 0,
+        col = my.colors[1:myK],
+        xlab = "Geographic regions",
+        ylab = "Ancestry proportions",
+        main = paste0("Ancestry matrix K =", myK))
+axis(1,
+     at = 1:length(myKQmeta$region),
+     labels = myKQmeta$region,
+     tick = F,
+     cex.axis = 0.5,
+     las = 3)
+dev.off()
