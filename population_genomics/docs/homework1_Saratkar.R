@@ -2,6 +2,9 @@ library(vcfR)
 library(tidyverse)
 library(qqman)
 library(SNPfiltR)
+library(gt)
+library(LEA)
+library(pcadapt)
 
 setwd("/gpfs1/cl/pbio3990/PopulationGenomics/")
 
@@ -46,12 +49,15 @@ vcf.filt.indMiss.5 <- missing_by_sample(vcf.filt,
 write.vcf(vcf.filt.indMiss.5,
           "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.5.vcf.gz")
 
+X11.options(type="cairo")
+options(bitmapType = "cairo")
+
 #############################################################################################################################################
 #2. a-d for vcf.filt.indMiss.25
 
 vcf25 <- read.vcfR("~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.25.vcf.gz")
 
-meta25<- meta[meta$id %in% colnames(vcf25@gt[,-1]),] # @ is like $ by for this file class
+meta25<- meta[meta$id %in% colnames(vcf25@gt[,-1]),] 
 dim(meta25)
 
 vcf.div25 <- genetic_diff(vcf25,
@@ -75,21 +81,21 @@ str(vcf.div.MHplot25)
 vcf.div.MHplot25$V2= as.numeric(vcf.div.MHplot25$V2)
 vcf.div.MHplot25$POS= as.numeric(vcf.div.MHplot25$POS)
 
-manhattan(vcf.div.MHplot25,
-          chr = "V2",
-          bp = "POS",
-          p = "Gst",
-          col = c("blue4", "orange3"),
-          logp = FALSE,
-          ylab = "Fst among regions",
-          suggestiveline = quantile(vcf.div.MHplot25$Gst, 0.5))
+#manhattan(vcf.div.MHplot25,
+          # chr = "V2",
+          # bp = "POS",
+          # p = "Gst",
+          # col = c("blue4", "orange3"),
+          # logp = FALSE,
+          # ylab = "Fst among regions",
+          # suggestiveline = quantile(vcf.div.MHplot25$Gst, 0.5))
 
 #suggestline - suggests that the region above the line is experiencing a higher level of differentiation
 #write.csv(vcf.div.MHplot, "~/Projects/eco_genomics/population_genomics/outputs/Genetic_Diff_byRegion",
           #quote = F,
           #row.names = F)
 
-#1
+#a.
 num_indSNP25 <- tibble(Individuals = nrow(vcf.div.MHplot25), Loci = n_distinct(vcf.div.MHplot25$SNP))
 
 names(vcf.div.MHplot25) 
@@ -100,44 +106,159 @@ vcf.div.MHplot25 %>%
   geom_histogram(position = "identity",alpha = 0.5, bins = 50)+
   labs(x = "Gene diversity (Hs) withing Regions (25% filter)", y = "Counts of SNPs", title = "Genome-wide expected heterozygosity (Hs)", fill = "Regions")
 
-ggsave("Histogram_GenomDiversity_byRegion.25.pdf", 
-       path = "~/Projects/eco_genomics/population_genomics/figures")
+#ggsave("Histogram_GenomDiversity_byRegion.25.pdf", 
+#       path = "~/Projects/eco_genomics/population_genomics/figures")
+
+#b.
 
 filter_summary_25 <- vcf.div.MHplot25 %>% 
   as_tibble() %>%   
   pivot_longer(c(4:9)) %>% 
   group_by(name) %>% 
   filter(value!=0 & value<0.5) %>% 
-  summarise(avg_Hs=mean(value), sd_Hs = sd(value), N_Hs=n())
+  summarise(Avg_Hs=mean(value), SD_Hs = sd(value), N_Hs=n())
 
-Hs_sum25 <- Hs25 %>% 
-  as_tibble() %>%   
-  pivot_longer(c(4:9)) %>% 
-  group_by(name) %>% 
-  sum(Hs25) 
 
-Hs25 <- vcf.div.MHplot25 %>% 
-  as_tibble() %>% 
-  pivot_longer(c(4:9)) %>% 
-  group_by(name)
 
-Hs25 <- vcf.div.MHplot25[,4:9]
+Hs_SD25table <- filter_summary_25 |>
+  gt() |>
+  tab_header(
+    title = "Hs and SD for each region (25% filter)"
+  ) |>
+  cols_label(name = "Region",
+             avg_Hs = "Average (Hs)",
+             sd_Hs = "SD (HS)", 
+             N_Hs = "N (Hs)")
 
-Hs_sum25 <- sum(Hs25 == 0)
+#c.
 
-CEU25 <- sum(Hs25$Hs_CEU==0)
-NE25 <- sum(Hs25$Hs_NE ==0)
-NEU25 <- sum(Hs25$Hs_NEU ==0)
-PNW25 <- sum(Hs25$Hs_PNW ==0)
+CEU25_0 <- sum(Hs25$Hs_CEU==0)
+NE25_0 <- sum(Hs25$Hs_NE ==0)
+NEU25_0 <- sum(Hs25$Hs_NEU ==0)
+PNW25_0 <- sum(Hs25$Hs_PNW ==0)
+SEU25_0 <- sum(Hs25$Hs_SEU ==0)
+WEU25_0 <- sum(Hs25$Hs_WEU ==0)
 
-Hs_sum25 <- data_frame(matrix(nrow = 6, ncol = 3))
-colnames(Hs_sum25) <- c("names","equal_zero","above_zero")
+CEU25 <- sum(Hs25$Hs_CEU>0)
+NE25 <- sum(Hs25$Hs_NE >0)
+NEU25 <- sum(Hs25$Hs_NEU >0)
+PNW25 <- sum(Hs25$Hs_PNW >0)
+SEU25 <- sum(Hs25$Hs_SEU >0)
+WEU25 <- sum(Hs25$Hs_WEU >0)
 
-Hs_sum25[1,2] <- 3
+Nloci_25_0 <-  tibble(Region = c("CEU", "NE", "NEU", "PNW", "SEU", "WEU"),
+       Equal_zero = c(CEU25_0, NE25_0, NEU25_0, PNW25_0, SEU25_0, WEU25_0),
+       Above_zero = c(CEU25, NE25, NEU25, PNW25, SEU25, WEU25))
 
-for(i in 1:ncol(Hs_sum25)){
-  Hs_sum25["names[,2]"] <- sum(Hs25[,i]==0)
-}
+Nloci_25table <- Nloci_25_0|>
+  gt() |>
+  tab_header(
+    title = "Number of loci = 0 or > 0 (25% filter)"
+  ) |>
+  cols_label(Region = "Region",
+             Equal_zero = "Equal 0",
+             Above_zero = "Above 0")
+
+#d.
+#vcf <- read.vcfR("outputs/vcf_final.filtered.vcf.gz")
+
+#Need to thin in the SNPs for LD (Linkage Disequilibrium) before running PCA and Admixture analyses
+# to account for the assumption of indepence for loci
+
+vcf.thin25 <- distance_thin(vcf25, min.distance = 500)
+# meta <- read.csv("/gpfs1/cl/pbio3990/PopulationGenomics/metadata/meta4vcf.csv")
+# dim(meta)
+# 
+# meta2 <- meta[meta$id %in% colnames(vcf@gt[,-1]) , ]
+# dim(meta2)
+
+write.vcf(vcf.thin25, "~/Projects/eco_genomics/population_genomics
+          /outputs/vcf_final.filtered.thinned.25.vcf.gz")
+# hide the uncompressed vcf because too big for github
+
+system("gunzip -c ~/Projects/eco_genomics/population_genomics/outputs
+       /vcf_final.filtered.thinned.25.vcf.gz > ~/vcf_final.filtered.
+       thinned.25.vcf")
+
+geno25 <- vcf2geno(input.file = "/gpfs1/home/c/s/csaratka/vcf_final.filtered.thinned.25.vcf",
+                 output.file = "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.25.geno")
+
+CentPCA25 <- LEA ::pca("~/Projects/eco_genomics/population_genomics
+                       /outputs/vcf_final.filtered.thinned.25.geno",
+                       scale = TRUE)
+
+CentPCA25 <- load.pcaProject("vcf_final.filtered.thinned.25.pcaProject")
+
+show(CentPCA)
+
+plot(CentPCA)
+
+vcf.pcadapt25 <- read.pcadapt("/gpfs1/home/c/s/csaratka/vcf_final.filtered.thinned.25.vcf",
+                    type = "vcf")
+
+#vcfR <- read.vcfR("~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.vcf.gz")
+#vcfR <- read.vcfR("/gpfs1/cl/pbio3990/PopulationGenomics/variants/vcf_final.filtered.vcf")
+
+# meta <- read.csv("/gpfs1/cl/pbio3990/PopulationGenomics/metadata/meta4vcf.csv")
+# meta2 <- meta[meta$id %in% colnames(vcfR@gt[,-1]),]
+
+pcadapt.pca <- pcadapt(vcf.pcadapt25,
+                       K=2,
+                       method = "componentwise",
+                       min.maf = 0.01,
+                       LD.clumping = list(size=500, thr=0.2)) #min.maf = minimum minor frequency allele
+
+summary(pcadapt.pca)
+plot(pcadapt.pca, options = "scores",
+     pop = meta2$region,
+     i = 1, j = 2, K=2)
+
+view(head(vcfR@fix))
+vcfR.fix <- as.data.frame(vcfR@fix[,1:2])
+
+chr.main <-  unique(vcfR.fix$CHROM)[1:8]
+chrnum <- as.data.frame(cbind(chr.main, seq(1,8,1)))
+
+Pval <- pcadapt.pca$pvalues
+
+pcadapt.MHplot <- cbind(vcfR.fix,Pval)
+pcadapt.MHplot <- left_join(chrnum, pcadapt.MHplot, join_by(chr.main==CHROM))
+
+pcadapt.MHplot <- pcadapt.MHplot %>% 
+  mutate(SNP=paste0(chr.main,"_",POS))
+
+str(pcadapt.MHplot)
+
+pcadapt.MHplot$V2 = as.numeric(pcadapt.MHplot$V2)
+pcadapt.MHplot$POS = as.numeric(pcadapt.MHplot$POS)
+pcadapt.MHplot$pPC1 = as.numeric(pcadapt.MHplot[,4])
+pcadapt.MHplot$pPC2 = as.numeric(pcadapt.MHplot[,5])
+
+pcadapt.MHplot <- pcadapt.MHplot %>% drop_na(pPC1)
+
+manhattan(pcadapt.MHplot,
+          chr = "V2",
+          bp = "POS",
+          p = "pPC1",
+          col = c("blue4", "orange3"),
+          logp = T,
+          ylab = "-log10 p-value",
+          genomewideline = F,
+          main = "PCAdapt genome scan for selection (PC1)")
+
+manhattan(pcadapt.MHplot,
+          chr = "V2",
+          bp = "POS",
+          p = "pPC2",
+          col = c("blue4", "orange3"),
+          logp = T,
+          ylab = "-log10 p-value",
+          genomewideline = F,
+          main = "PCAdapt genome scan for selection (PC2)")
+
+View(pcadapt.MHplot %>% 
+       filter(pPC1<quantile(pcadapt.MHplot$pPC1, 0.001))) %>% 
+  select(chr.main, POS, pPC1)
 
 #############################################################################################################################################
 #2. a-d for vcf.filt.indMiss.5
@@ -148,7 +269,7 @@ meta50<- meta[meta$id %in% colnames(vcf50@gt[,-1]),] # @ is like $ by for this f
 dim(meta50)
 
 vcf.div50 <- genetic_diff(vcf50,
-                        pops = as.factor(meta4$region),
+                        pops = as.factor(meta50$region),
                         method = "nei")
 
 str(vcf.div50)
@@ -201,3 +322,44 @@ filter_summary_50 <- vcf.div.MHplot50 %>%
   group_by(name) %>% 
   filter(value!=0 & value<0.5) %>% 
   summarise(avg_Hs=mean(value), sd_Hs = sd(value), N_Hs=n())
+
+Hs50  <- vcf.div.MHplot50[,4:9]
+
+Hs_SD50table <- filter_summary_50 |>
+  gt() |>
+  tab_header(
+    title = "Hs and SD for each region (50% filter)"
+  ) |>
+  cols_label(name = "Region",
+             avg_Hs = "Average (Hs)",
+             sd_Hs = "SD (HS)", 
+             N_Hs = "N (Hs)")
+
+#c.
+
+CEU50_0 <- sum(Hs50$Hs_CEU==0)
+NE50_0 <- sum(Hs50$Hs_NE ==0)
+NEU50_0 <- sum(Hs50$Hs_NEU ==0)
+PNW50_0 <- sum(Hs50$Hs_PNW ==0)
+SEU50_0 <- sum(Hs50$Hs_SEU ==0)
+WEU50_0 <- sum(Hs50$Hs_WEU ==0)
+
+CEU50 <- sum(Hs50$Hs_CEU>0)
+NE50 <- sum(Hs50$Hs_NE >0)
+NEU50 <- sum(Hs50$Hs_NEU >0)
+PNW50 <- sum(Hs50$Hs_PNW >0)
+SEU50 <- sum(Hs50$Hs_SEU >0)
+WEU50 <- sum(Hs50$Hs_WEU >0)
+
+Nloci_50_0 <-  tibble(Region = c("CEU", "NE", "NEU", "PNW", "SEU", "WEU"),
+                      Equal_zero = c(CEU50_0, NE50_0, NEU50_0, PNW50_0, SEU50_0, WEU50_0),
+                      Above_zero = c(CEU50, NE50, NEU50, PNW50, SEU50, WEU50))
+
+Nloci_50table <- Nloci_50_0|>
+  gt() |>
+  tab_header(
+    title = "Number of loci = 0 or > 0 (50% filter)"
+  ) |>
+  cols_label(Region = "Region",
+             Equal_zero = "Equal 0",
+             Above_zero = "Above 0")
