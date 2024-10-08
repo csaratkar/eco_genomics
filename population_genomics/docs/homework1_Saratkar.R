@@ -126,11 +126,13 @@ Hs_SD25table <- filter_summary_25 |>
     title = "Hs and SD for each region (25% filter)"
   ) |>
   cols_label(name = "Region",
-             avg_Hs = "Average (Hs)",
-             sd_Hs = "SD (HS)", 
+             Avg_Hs = "Average (Hs)",
+             SD_Hs = "SD (HS)", 
              N_Hs = "N (Hs)")
 
 #c.
+
+Hs25  <- vcf.div.MHplot25[,4:9]
 
 CEU25_0 <- sum(Hs25$Hs_CEU==0)
 NE25_0 <- sum(Hs25$Hs_NE ==0)
@@ -181,10 +183,9 @@ system("gunzip -c ~/Projects/eco_genomics/population_genomics/outputs
        thinned.25.vcf")
 
 geno25 <- vcf2geno(input.file = "/gpfs1/home/c/s/csaratka/vcf_final.filtered.thinned.25.vcf",
-                 output.file = "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.25.geno")
+                 output.file = "/gpfs1/home/c/s/csaratka/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.25.geno")
 
-CentPCA25 <- LEA ::pca("~/Projects/eco_genomics/population_genomics
-                       /outputs/vcf_final.filtered.thinned.25.geno",
+CentPCA25 <- LEA::pca("/gpfs1/home/c/s/csaratka/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.25.geno",
                        scale = TRUE)
 
 CentPCA25 <- load.pcaProject("vcf_final.filtered.thinned.25.pcaProject")
