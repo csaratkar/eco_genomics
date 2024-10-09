@@ -8,7 +8,6 @@ library(pcadapt)
 
 setwd("/gpfs1/cl/pbio3990/PopulationGenomics/")
 
-list.files()
 
 vcf <- read.vcfR("variants/Centaurea_filtered.vcf.gz")
 
@@ -270,6 +269,59 @@ View(pcadapt.MHplot %>%
        filter(pPC1<quantile(pcadapt.MHplot$pPC1, 0.001))) %>% 
   select(chr.main, POS, pPC1)
 
+
+
+
+CentAdmix25 <-snmf("outputs/vcf_final.filtered.thinned.25.geno",
+                 K = 1:10,
+                 entropy = TRUE,
+                 repetitions = 3,
+                 project = "new") #if adding to analysis, you can choose project = "continue"
+
+par(mfrow = c(2,1))
+plot(CentAdmix25, main = "SNMF", col = "blue4")
+#Pay attention to the "elbow" of the graph, the values you want to focus on 
+## Elbow is 2-4
+
+
+#plot(CentPCA$eigenvalues[1:10], ylab = "Eigen values", xlab = "Number of PCs", col = "blue4", main="PCA")
+#dev.off() #resets plotting window
+
+
+myK25 = 4
+
+CE25 = cross.entropy(CentAdmix25, K = myK25)
+best25 = which.min(CE25) #lowest cross entropy value
+
+myKQ25 = Q(CentAdmix25, K = myK25, run = best25) 
+#dataset of each individuals' percentage ancestry from each K group
+
+myKQmeta25 = cbind(myKQ25, meta25)
+
+my.colors25 = c("blue4", "gold", "tomato", "lightblue", "olivedrab")
+
+myKQmeta25 = as_tibble(myKQmeta25) %>% 
+  group_by(continent) %>% 
+  arrange(region, pop, .by_group = TRUE)
+
+
+#pdf("figures/Admixture_K4.pdf", width = 10, height = 5)
+barplot(as.matrix(t(myKQmeta25[ ,1:myK25])),
+        border = NA,
+        space = 0,
+        col = my.colors[1:myK25],
+        xlab = "Geographic regions",
+        ylab = "Ancestry proportions",
+        main = paste0("Ancestry matrix K =", myK25))
+axis(1,
+     at = 1:length(myKQmeta25$region),
+     labels = myKQmeta25$region,
+     tick = F,
+     cex.axis = 0.5,
+     las = 3)
+dev.off()
+
+
 #############################################################################################################################################
 #2. a-d for vcf.filt.indMiss.5
 
@@ -299,14 +351,14 @@ str(vcf.div.MHplot50)
 vcf.div.MHplot50$V2= as.numeric(vcf.div.MHplot50$V2)
 vcf.div.MHplot50$POS= as.numeric(vcf.div.MHplot50$POS)
 
-manhattan(vcf.div.MHplot50,
-          chr = "V2",
-          bp = "POS",
-          p = "Gst",
-          col = c("blue4", "orange3"),
-          logp = FALSE,
-          ylab = "Fst among regions",
-          suggestiveline = quantile(vcf.div.MHplot50$Gst, 0.5))
+#manhattan(vcf.div.MHplot50,
+#          chr = "V2",
+          # bp = "POS",
+          # p = "Gst",
+          # col = c("blue4", "orange3"),
+          # logp = FALSE,
+          # ylab = "Fst among regions",
+          # suggestiveline = quantile(vcf.div.MHplot50$Gst, 0.5))
 
 #suggestline - suggests that the region above the line is experiencing a higher level of differentiation
 #write.csv(vcf.div.MHplot, "~/Projects/eco_genomics/population_genomics/outputs/Genetic_Diff_byRegion",
@@ -377,3 +429,68 @@ Nloci_50table <- Nloci_50_0|>
   cols_label(Region = "Region",
              Equal_zero = "Equal 0",
              Above_zero = "Above 0")
+
+vcf.thin50 <- distance_thin(vcf50, min.distance = 500)
+# meta <- read.csv("/gpfs1/cl/pbio3990/PopulationGenomics/metadata/meta4vcf.csv")
+# dim(meta)
+# 
+# meta2 <- meta[meta$id %in% colnames(vcf@gt[,-1]) , ]
+# dim(meta2)
+
+write.vcf(vcf.thin50, "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.5.vcf.gz")
+# hide the uncompressed vcf because too big for github
+
+system("gunzip -c ~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.5.vcf.gz > ~/vcf_final.filtered.thinned.5.vcf")
+
+geno25 <- vcf2geno(input.file = "/gpfs1/home/c/s/csaratka/vcf_final.filtered.thinned.5.vcf",
+                   output.file = "/gpfs1/home/c/s/csaratka/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.5.geno")
+
+
+CentAdmix50 <-snmf("outputs/vcf_final.filtered.thinned.5.geno",
+                   K = 1:10,
+                   entropy = TRUE,
+                   repetitions = 3,
+                   project = "new") #if adding to analysis, you can choose project = "continue"
+
+par(mfrow = c(2,1))
+plot(CentAdmix50, main = "SNMF", col = "blue4")
+#Pay attention to the "elbow" of the graph, the values you want to focus on 
+## Elbow is 2-4
+
+
+#plot(CentPCA$eigenvalues[1:10], ylab = "Eigen values", xlab = "Number of PCs", col = "blue4", main="PCA")
+#dev.off() #resets plotting window
+
+
+myK50 = 2
+
+CE50 = cross.entropy(CentAdmix50, K = myK50)
+best50 = which.min(CE50) #lowest cross entropy value
+
+myKQ50 = Q(CentAdmix50, K = myK50, run = best50) 
+#dataset of each individuals' percentage ancestry from each K group
+
+myKQmeta50 = cbind(myKQ50, meta50)
+
+my.colors50 = c("blue3", "goldenrod", "red", "cyan", "darkgreen")
+
+myKQmeta50 = as_tibble(myKQmeta50) %>% 
+  group_by(continent) %>% 
+  arrange(region, pop, .by_group = TRUE)
+
+
+#pdf("figures/Admixture_K4.pdf", width = 10, height = 5)
+barplot(as.matrix(t(myKQmeta50[ ,1:myK50])),
+        border = NA,
+        space = 0,
+        col = my.colors[1:myK50],
+        xlab = "Geographic regions",
+        ylab = "Ancestry proportions",
+        main = paste0("Ancestry matrix K =", myK50))
+axis(1,
+     at = 1:length(myKQmeta50$region),
+     labels = myKQmeta50$region,
+     tick = F,
+     cex.axis = 0.5,
+     las = 3)
+dev.off()
