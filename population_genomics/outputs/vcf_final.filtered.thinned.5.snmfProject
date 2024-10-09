@@ -19,5 +19,5 @@ new("snmfProject", snmfProject.file = "vcf_final.filtered.thinned.5.snmfProject"
     "K5/run3/vcf_final.filtered.thinned.5_r3.5.snmfClass", "K6/run3/vcf_final.filtered.thinned.5_r3.6.snmfClass", 
     "K7/run3/vcf_final.filtered.thinned.5_r3.7.snmfClass", "K8/run3/vcf_final.filtered.thinned.5_r3.8.snmfClass", 
     "K9/run3/vcf_final.filtered.thinned.5_r3.9.snmfClass", "K10/run3/vcf_final.filtered.thinned.5_r3.10.snmfClass"
-    ), n = 459L, L = 4072L, creationTime = structure(1728495119.41899, class = c("POSIXct", 
+    ), n = 459L, L = 4072L, creationTime = structure(1728517014.46864, class = c("POSIXct", 
     "POSIXt")))
