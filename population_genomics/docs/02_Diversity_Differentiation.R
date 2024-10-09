@@ -52,6 +52,8 @@ manhattan(vcf.div.MHplot,
           ylab = "Fst among regions",
           suggestiveline = quantile(vcf.div.MHplot$Gst, 0.5))
 
+num_indSNP <- tibble(Individuals = nrow(vcf.div.MHplot), Loci = n_distinct(vcf.div.MHplot$SNP))
+
 #suggestline - suggests that the region above the line is experiencing a higher level of differentiation
 write.csv(vcf.div.MHplot, "~/Projects/eco_genomics/population_genomics/outputs/Genetic_Diff_byRegion",
           quote = F,
