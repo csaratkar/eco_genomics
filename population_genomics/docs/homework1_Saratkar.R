@@ -37,17 +37,17 @@ vcf.filt.indMiss.75 <- missing_by_sample(vcf.filt,
 
 vcf.filt.indMiss.25 <- missing_by_sample(vcf.filt, 
                                       popmap = meta2,
-                                      cutoff = 0.9)
+                                      cutoff = 0.25)
 
-write.vcf(vcf.filt.indMiss.25,
-          "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.25.vcf.gz")
+#write.vcf(vcf.filt.indMiss.25,
+ #         "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.25.vcf.gz")
 
 
 vcf.filt.indMiss.5 <- missing_by_sample(vcf.filt, 
                                       popmap = meta2,
                                       cutoff = 0.5)
-write.vcf(vcf.filt.indMiss.5,
-          "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.5.vcf.gz")
+#write.vcf(vcf.filt.indMiss.5,
+ #         "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.5.vcf.gz")
 
 X11.options(type="cairo")
 options(bitmapType = "cairo")
@@ -65,6 +65,7 @@ vcf.div25 <- genetic_diff(vcf25,
                         method = "nei")
 
 str(vcf.div25)
+
 
 chr.main25 <- unique(vcf.div25$CHROM)[1:8]
 
@@ -98,6 +99,10 @@ vcf.div.MHplot25$POS= as.numeric(vcf.div.MHplot25$POS)
 #a.
 num_indSNP25 <- tibble(Individuals = nrow(vcf.div.MHplot25), Loci = n_distinct(vcf.div.MHplot25$SNP))
 
+num_indSNP25|>
+  gt() |>
+  tab_header(title = "# of inds and loci (25% filter)")
+
 names(vcf.div.MHplot25) 
 vcf.div.MHplot25 %>% 
   as_tibble() %>% 
@@ -119,7 +124,6 @@ filter_summary_25 <- vcf.div.MHplot25 %>%
   summarise(Avg_Hs=mean(value), SD_Hs = sd(value), N_Hs=n())
 
 
-
 Hs_SD25table <- filter_summary_25 |>
   gt() |>
   tab_header(
@@ -131,6 +135,7 @@ Hs_SD25table <- filter_summary_25 |>
              N_Hs = "N (Hs)")
 
 #c.
+
 
 Hs25  <- vcf.div.MHplot25[,4:9]
 
@@ -174,9 +179,11 @@ vcf.thin25 <- distance_thin(vcf25, min.distance = 500)
 # meta2 <- meta[meta$id %in% colnames(vcf@gt[,-1]) , ]
 # dim(meta2)
 
-write.vcf(vcf.thin25, "~/Projects/eco_genomics/population_genomics
-          /outputs/vcf_final.filtered.thinned.25.vcf.gz")
+#write.vcf(vcf.thin25, "~/Projects/eco_genomics/population_genomics
+ #         /outputs/vcf_final.filtered.thinned.25.vcf.gz")
 # hide the uncompressed vcf because too big for github
+
+setwd("~/Projects/eco_genomics/population_genomics/")
 
 system("gunzip -c ~/Projects/eco_genomics/population_genomics/outputs
        /vcf_final.filtered.thinned.25.vcf.gz > ~/vcf_final.filtered.
@@ -185,8 +192,7 @@ system("gunzip -c ~/Projects/eco_genomics/population_genomics/outputs
 geno25 <- vcf2geno(input.file = "/gpfs1/home/c/s/csaratka/vcf_final.filtered.thinned.25.vcf",
                  output.file = "/gpfs1/home/c/s/csaratka/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.25.geno")
 
-CentPCA25 <- LEA::pca("/gpfs1/home/c/s/csaratka/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.25.geno",
-                       scale = TRUE)
+CentPCA25 <- LEA::pca("~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.25.geno", scale = TRUE)
 
 CentPCA25 <- load.pcaProject("vcf_final.filtered.thinned.25.pcaProject")
 
@@ -194,36 +200,39 @@ show(CentPCA)
 
 plot(CentPCA)
 
-vcf.pcadapt25 <- read.pcadapt("/gpfs1/home/c/s/csaratka/vcf_final.filtered.thinned.25.vcf",
-                    type = "vcf")
+vcf.pcadapt25 <- read.pcadapt("/gpfs1/home/c/s/csaratka/vcf_final.filtered.thinned.25.vcf", type = "vcf")
 
 #vcfR <- read.vcfR("~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.vcf.gz")
-#vcfR <- read.vcfR("/gpfs1/cl/pbio3990/PopulationGenomics/variants/vcf_final.filtered.vcf")
+
+vcfR25 <- read.vcfR("/gpfs1/cl/pbio3990/PopulationGenomics/variants/vcf_final.filtered.vcf")
 
 # meta <- read.csv("/gpfs1/cl/pbio3990/PopulationGenomics/metadata/meta4vcf.csv")
 # meta2 <- meta[meta$id %in% colnames(vcfR@gt[,-1]),]
 
-pcadapt.pca <- pcadapt(vcf.pcadapt25,
+
+
+pcadapt.pca25 <- pcadapt(vcf.pcadapt25,
                        K=2,
                        method = "componentwise",
                        min.maf = 0.01,
                        LD.clumping = list(size=500, thr=0.2)) #min.maf = minimum minor frequency allele
 
-summary(pcadapt.pca)
-plot(pcadapt.pca, options = "scores",
-     pop = meta2$region,
+summary(pcadapt.pca25)
+plot(pcadapt.pca25, options = "scores",
+     pop = meta25$region,
      i = 1, j = 2, K=2)
 
-view(head(vcfR@fix))
-vcfR.fix <- as.data.frame(vcfR@fix[,1:2])
+view(head(vcfR25@fix))
+vcfR.fix25 <- as.data.frame(vcfR25@fix[,1:2])
 
-chr.main <-  unique(vcfR.fix$CHROM)[1:8]
-chrnum <- as.data.frame(cbind(chr.main, seq(1,8,1)))
 
-Pval <- pcadapt.pca$pvalues
+chr.main25.admix <-  unique(vcfR.fix25$CHROM)[1:8]
+chrnum25.admix <- as.data.frame(cbind(chr.main25.admix, seq(1,8,1)))
 
-pcadapt.MHplot <- cbind(vcfR.fix,Pval)
-pcadapt.MHplot <- left_join(chrnum, pcadapt.MHplot, join_by(chr.main==CHROM))
+Pval25 <- pcadapt.pca25$pvalues
+
+pcadapt.MHplot25 <- cbind(vcfR.fix25,Pval25)
+pcadapt.MHplot25 <- left_join(chrnum25.admix, pcadapt.MHplot25, join_by(chr.main25.admix==CHROM))
 
 pcadapt.MHplot <- pcadapt.MHplot %>% 
   mutate(SNP=paste0(chr.main,"_",POS))
@@ -306,6 +315,10 @@ manhattan(vcf.div.MHplot50,
 
 num_indSNP50 <- tibble(Individuals = nrow(vcf.div.MHplot50), Loci = n_distinct(vcf.div.MHplot50$SNP))
 
+num_indSNP50|>
+  gt() |>
+  tab_header(title = "# of inds and loci (50% filter)")
+
 names(vcf.div.MHplot50) 
 vcf.div.MHplot50 %>% 
   as_tibble() %>% 
@@ -314,8 +327,8 @@ vcf.div.MHplot50 %>%
   geom_histogram(position = "identity",alpha = 0.5, bins = 50)+
   labs(x = "Gene diversity (Hs) withing Regions (50% filter)", y = "Counts of SNPs", title = "Genome-wide expected heterozygosity (Hs)", fill = "Regions")
 
-ggsave("Histogram_GenomDiversity_byRegion.5.pdf", 
-       path = "~/Projects/eco_genomics/population_genomics/figures")
+#ggsave("Histogram_GenomDiversity_byRegion.5.pdf", 
+ #      path = "~/Projects/eco_genomics/population_genomics/figures")
 
 filter_summary_50 <- vcf.div.MHplot50 %>% 
   as_tibble() %>%   

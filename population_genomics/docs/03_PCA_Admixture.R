@@ -28,7 +28,7 @@ system("gunzip -c ~/Projects/eco_genomics/population_genomics/outputs/vcf_final.
 geno <- vcf2geno(input.file = "/gpfs1/home/c/s/csaratka/vcf_final.filtered.thinned.vcf",
                  output.file = "outputs/vcf_final.filtered.thinned.geno")
 
-CentPCA <- LEA ::pca("outputs/vcf_final.filtered.thinned.geno", scale = TRUE)
+CentPCA <- LEA ::pca("~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.geno", scale = TRUE)
 
 CentPCA <- load.pcaProject("vcf_final.filtered.thinned.pcaProject")
 
