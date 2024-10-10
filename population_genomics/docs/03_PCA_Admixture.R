@@ -72,7 +72,7 @@ plot(CentPCA$eigenvalues[1:10], ylab = "Eigen values", xlab = "Number of PCs", c
 dev.off() #resets plotting window
 
 
-myK = 4
+myK = 3
 
 CE = cross.entropy(CentAdmix, K = myK)
 best = which.min(CE) #lowest croos entropy value

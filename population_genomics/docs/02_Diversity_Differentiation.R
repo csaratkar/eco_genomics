@@ -76,3 +76,33 @@ vcf.div.MHplot %>%
   group_by(name) %>% 
   filter(value!=0 & value<0.5) %>% 
   summarise(avg_Hs=mean(value), sd_Hs = sd(value), N_Hs=n())
+
+Hs  <- vcf.div.MHplot[,4:9]
+
+CEU_0 <- sum(Hs$Hs_CEU==0)
+NE_0 <- sum(Hs$Hs_NE ==0)
+NEU_0 <- sum(Hs$Hs_NEU ==0)
+PNW_0 <- sum(Hs$Hs_PNW ==0)
+SEU_0 <- sum(Hs$Hs_SEU ==0)
+WEU_0 <- sum(Hs$Hs_WEU ==0)
+
+CEU <- sum(Hs$Hs_CEU>0)
+NE <- sum(Hs$Hs_NE >0)
+NEU <- sum(Hs$Hs_NEU >0)
+PNW <- sum(Hs$Hs_PNW >0)
+SEU <- sum(Hs$Hs_SEU >0)
+WEU <- sum(Hs$Hs_WEU >0)
+
+Nloci_75_0 <-  tibble(Region = c("CEU", "NE", "NEU", "PNW", "SEU", "WEU"),
+                      Equal_zero = c(CEU_0, NE_0, NEU_0, PNW_0, SEU_0, WEU_0),
+                      Above_zero = c(CEU, NE, NEU, PNW, SEU, WEU))
+
+Nloci_75table <- Nloci_75_0|>
+  gt() |>
+  tab_header(
+    title = "Number of loci = 0 or > 0 (75% filter)"
+  ) |>
+  cols_label(Region = "Region",
+             Equal_zero = "Equal 0",
+             Above_zero = "Above 0")
+

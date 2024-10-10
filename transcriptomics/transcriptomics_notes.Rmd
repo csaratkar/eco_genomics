@@ -1,0 +1,7 @@
+### 10-10-2024 
+
+- overdispersion = variance > mean
+- needs negatively binomial distribution or Poisson (do not use Poisson)
+- Gene expression ~ explanatory variable and treatment conditions
+- Gene expression ~ dev temp + final temp
+- DESeq2 - package for analyzing sequences
