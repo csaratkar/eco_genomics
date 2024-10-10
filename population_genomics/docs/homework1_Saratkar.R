@@ -38,15 +38,15 @@ vcf.filt.indMiss.25 <- missing_by_sample(vcf.filt,
                                       popmap = meta2,
                                       cutoff = 0.25)
 
-#write.vcf(vcf.filt.indMiss.25,
- #         "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.25.vcf.gz")
+write.vcf(vcf.filt.indMiss.25,
+          "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.25.vcf.gz")
 
 
 vcf.filt.indMiss.5 <- missing_by_sample(vcf.filt, 
                                       popmap = meta2,
                                       cutoff = 0.5)
-#write.vcf(vcf.filt.indMiss.5,
- #         "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.5.vcf.gz")
+write.vcf(vcf.filt.indMiss.5,
+          "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.5.vcf.gz")
 
 X11.options(type="cairo")
 options(bitmapType = "cairo")
@@ -178,15 +178,12 @@ vcf.thin25 <- distance_thin(vcf25, min.distance = 500)
 # meta2 <- meta[meta$id %in% colnames(vcf@gt[,-1]) , ]
 # dim(meta2)
 
-#write.vcf(vcf.thin25, "~/Projects/eco_genomics/population_genomics
- #         /outputs/vcf_final.filtered.thinned.25.vcf.gz")
+write.vcf(vcf.thin25, "~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.25.vcf.gz")
 # hide the uncompressed vcf because too big for github
 
 setwd("~/Projects/eco_genomics/population_genomics/")
 
-system("gunzip -c ~/Projects/eco_genomics/population_genomics/outputs
-       /vcf_final.filtered.thinned.25.vcf.gz > ~/vcf_final.filtered.
-       thinned.25.vcf")
+system("gunzip -c ~/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.25.vcf.gz > ~/vcf_final.filtered.thinned.25.vcf")
 
 geno25 <- vcf2geno(input.file = "/gpfs1/home/c/s/csaratka/vcf_final.filtered.thinned.25.vcf",
                  output.file = "/gpfs1/home/c/s/csaratka/Projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.25.geno")
@@ -279,6 +276,7 @@ CentAdmix25 <-snmf("outputs/vcf_final.filtered.thinned.25.geno",
                  project = "new") #if adding to analysis, you can choose project = "continue"
 
 par(mfrow = c(2,1))
+
 plot(CentAdmix25, main = "SNMF", col = "blue4")
 #Pay attention to the "elbow" of the graph, the values you want to focus on 
 ## Elbow is 2-4
@@ -288,7 +286,7 @@ plot(CentAdmix25, main = "SNMF", col = "blue4")
 #dev.off() #resets plotting window
 
 
-myK25 = 4
+myK25 = 3
 
 CE25 = cross.entropy(CentAdmix25, K = myK25)
 best25 = which.min(CE25) #lowest cross entropy value
@@ -309,7 +307,7 @@ myKQmeta25 = as_tibble(myKQmeta25) %>%
 barplot(as.matrix(t(myKQmeta25[ ,1:myK25])),
         border = NA,
         space = 0,
-        col = my.colors[1:myK25],
+        col = my.colors25[1:myK25],
         xlab = "Geographic regions",
         ylab = "Ancestry proportions",
         main = paste0("Ancestry matrix K =", myK25))
@@ -462,7 +460,7 @@ plot(CentAdmix50, main = "SNMF", col = "blue4")
 #dev.off() #resets plotting window
 
 
-myK50 = 2
+myK50 = 3
 
 CE50 = cross.entropy(CentAdmix50, K = myK50)
 best50 = which.min(CE50) #lowest cross entropy value
@@ -483,7 +481,7 @@ myKQmeta50 = as_tibble(myKQmeta50) %>%
 barplot(as.matrix(t(myKQmeta50[ ,1:myK50])),
         border = NA,
         space = 0,
-        col = my.colors[1:myK50],
+        col = my.colors50[1:myK50],
         xlab = "Geographic regions",
         ylab = "Ancestry proportions",
         main = paste0("Ancestry matrix K =", myK50))
