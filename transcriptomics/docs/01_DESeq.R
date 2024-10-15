@@ -79,3 +79,4 @@ p <- ggplot(pcaData, aes(PC1, PC2, color = FinalTemp, shape = DevTemp)) +
   scale_color_manual(values = final_temp_colors)+
   labs(x = paste0("PC1: ", percentVar[1], "%"), y = paste0("PC2: ", percentVar[2], "%")) +
   theme_bw(base_size = 16)
+
