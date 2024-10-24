@@ -89,103 +89,7 @@ myEuler <- euler(c("BASE" = 1807,
 
 plot(myEuler, lty=1:3, quantities = T)
 
-###########################################
-#Make a scatter plot of responses to A28 when copepods develop at 18 vs 22
-
-#contrast D18_A28vsBASE
-res_D18_BASEvsA28 <- as.data.frame(results(dds, contrast = c("group", "D18BASE", "D18A28"), alpha = 0.05))
-
-
-#contrast D22_A28vsBASE
-res_D22_BASEvsA28 <- as.data.frame(results(dds, contrast = c("group", "D22BASE", "D22A28"), alpha = 0.05))
-
-#merge dataframes
-res_df28 <- merge(res_D18_BASEvsA28, res_D22_BASEvsA28, by = "row.names", suffixes = c(".18", ".22"))
-rownames(res_df28) <- res_df28$Row.names
-res_df28 <- res_df28[,-1]
-
-#define color mapping logic with mutate
-res_df28 <- res_df28 %>% 
-  mutate(fill=case_when(
-    padj.18<0.05 & stat.18<0 ~ "turquoise2",
-    padj.18<0.05 & stat.18>0 ~ "magenta1",
-    padj.22<0.05 & stat.22<0 ~ "blue2",
-    padj.22<0.05 & stat.22>0 ~ "red"
-  ))
-
-#Plot
-
-ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
-  geom_point(alpha = 0.8) +
-  scale_color_identity()+
-  labs(x = "Log2FoldChange 28 vs. BASE at 18",
-       y = "Log2FoldChange 28 vs. BASE at 22",
-       title = "How does response to 28 C vary by DevTemp?")+
-  theme_minimal()
-#Make a scatter plot of responses to A28 when copepods develop at 18 vs 22
-
-#contrast D18_A28vsBASE
-res_D18_BASEvsA28 <- as.data.frame(results(dds, contrast = c("group", "D18BASE", "D18A28"), alpha = 0.05))
-
-
-#contrast D22_A28vsBASE
-res_D22_BASEvsA28 <- as.data.frame(results(dds, contrast = c("group", "D22BASE", "D22A28"), alpha = 0.05))
-
-#merge dataframes
-res_df28 <- merge(res_D18_BASEvsA28, res_D22_BASEvsA28, by = "row.names", suffixes = c(".18", ".22"))
-rownames(res_df28) <- res_df28$Row.names
-res_df28 <- res_df28[,-1]
-
-#define color mapping logic with mutate
-res_df28 <- res_df28 %>% 
-  mutate(fill=case_when(
-    padj.18<0.05 & stat.18<0 ~ "turquoise2",
-    padj.18<0.05 & stat.18>0 ~ "magenta1",
-    padj.22<0.05 & stat.22<0 ~ "blue2",
-    padj.22<0.05 & stat.22>0 ~ "red"
-  ))
-
-#Plot
-
-ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
-  geom_point(alpha = 0.8) +
-  scale_color_identity()+
-  labs(x = "Log2FoldChange 28 vs. BASE at 18",
-       y = "Log2FoldChange 28 vs. BASE at 22",
-       title = "How does response to 28 C vary by DevTemp?")+
-  theme_minimal()
-#Make a scatter plot of responses to A28 when copepods develop at 18 vs 22
-
-#contrast D18_A28vsBASE
-res_D18_BASEvsA28 <- as.data.frame(results(dds, contrast = c("group", "D18BASE", "D18A28"), alpha = 0.05))
-
-
-#contrast D22_A28vsBASE
-res_D22_BASEvsA28 <- as.data.frame(results(dds, contrast = c("group", "D22BASE", "D22A28"), alpha = 0.05))
-
-#merge dataframes
-res_df28 <- merge(res_D18_BASEvsA28, res_D22_BASEvsA28, by = "row.names", suffixes = c(".18", ".22"))
-rownames(res_df28) <- res_df28$Row.names
-res_df28 <- res_df28[,-1]
-
-#define color mapping logic with mutate
-res_df28 <- res_df28 %>% 
-  mutate(fill=case_when(
-    padj.18<0.05 & stat.18<0 ~ "turquoise2",
-    padj.18<0.05 & stat.18>0 ~ "magenta1",
-    padj.22<0.05 & stat.22<0 ~ "blue2",
-    padj.22<0.05 & stat.22>0 ~ "red"
-  ))
-
-#Plot
-
-ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
-  geom_point(alpha = 0.8) +
-  scale_color_identity()+
-  labs(x = "Log2FoldChange 28 vs. BASE at 18",
-       y = "Log2FoldChange 28 vs. BASE at 22",
-       title = "How does response to 28 C vary by DevTemp?")+
-  theme_minimal()
+# A28_18vs22 --------------------------------------------------------------
 #Make a scatter plot of responses to A28 when copepods develop at 18 vs 22
 
 #contrast D18_A28vsBASE
@@ -221,16 +125,23 @@ label_positions <- data.frame(fill = c("blue2", "magenta1", "red", "turquoise2")
 label_data <- merge(color_counts, label_positions, by = "fill")
 #Plot
 
-ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
+plot28 <- ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
   geom_point(alpha = 0.8) +
   scale_color_identity()+
   geom_text(data = label_data, aes(x = x_pos, y = y_pos, label = count, color = fill), size = 5)+
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black")+
+  geom_abline(intercept = 0, slope = -1, linetype = "dashed", color = "grey")+
+  xlim(-10,10) + ylim(-10,10)+
   labs(x = "Log2FoldChange 28 vs. BASE at 18",
        y = "Log2FoldChange 28 vs. BASE at 22",
        title = "How does response to 28 C vary by DevTemp?")+
   theme_minimal()
 
-############################################
+
+# A33_18vs22 --------------------------------------------------------------
+
+
+#A33_18vs22
 #Make a scatter plot of responses to A33 when copepods develop at 18 vs 22
 
 #contrast D18_A33vsBASE
@@ -248,18 +159,38 @@ res_df33 <- res_df33[,-1]
 #define color mapping logic with mutate
 res_df33 <- res_df33 %>% 
   mutate(fill=case_when(
-    padj.18<0.05 & stat.18<0 ~ "turquoise2",
-    padj.18<0.05 & stat.18>0 ~ "magenta1",
-    padj.22<0.05 & stat.22<0 ~ "blue2",
-    padj.22<0.05 & stat.22>0 ~ "red"
+    padj.18<0.05 & stat.18<0 ~ "cyan",
+    padj.18<0.05 & stat.18>0 ~ "purple",
+    padj.22<0.05 & stat.22<0 ~ "blue4",
+    padj.22<0.05 & stat.22>0 ~ "hotpink"
   ))
 
+color_counts33 <- res_df33 %>% 
+  group_by(fill) %>% 
+  summarise(count = n())
+
+label_positions33 <- data.frame(fill = c("blue4", "purple", "hotpink", "cyan"),
+                              x_pos=c(1,5,0,-7.5),
+                              y_pos = c(-5,0,9,3))
+
+label_data33 <- merge(color_counts33, label_positions33, by = "fill")
 #Plot
 
-ggplot(res_df33, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
+plot33 <- ggplot(res_df33, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
   geom_point(alpha = 0.8) +
   scale_color_identity()+
+  geom_text(data = label_data33, aes(x = x_pos, y = y_pos, label = count, color = fill), size = 5)+
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black")+
+  geom_abline(intercept = 0, slope = -1, linetype = "dashed", color = "grey")+
+  xlim(-10,10) + ylim(-10,10)+
   labs(x = "Log2FoldChange 33 vs. BASE at 18",
        y = "Log2FoldChange 33 vs. BASE at 22",
        title = "How does response to 33 C vary by DevTemp?")+
   theme_minimal()
+
+#put the two plots together in a two panel plot
+library(gridExtra)
+
+combined_plot <- grid.arrange(plot28, plot33, ncol = 2)
+
+ggsave("~/Projects/eco_genomics/transcriptomics/figures/combined_scatter_plot.png", combined_plot, width = 12, height = 6)
