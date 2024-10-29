@@ -1,3 +1,7 @@
+# Coding and data notes for the transcriptomics module
+
+## Author: Chanchal Saratkar
+
 ### 10-10-2024 
 
 - overdispersion = variance > mean
@@ -5,3 +9,11 @@
 - Gene expression ~ explanatory variable and treatment conditions
 - Gene expression ~ dev temp + final temp
 - DESeq2 - package for analyzing sequences
+
+### 10-24-2024
+
+- WGNCA - package for constructing networks of genomes
+
+### 10-29-2024
+
+- scale-free topology - network of correlation between different genes

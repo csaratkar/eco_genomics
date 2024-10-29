@@ -2,15 +2,15 @@
 library(DESeq2)
 library(tidyverse)
 library(WGCNA);options(stringsAsFactors = F);
-#library(CorLevelPlot)
+library(CorLevelPlot)
 library(gridExtra)
-#library(Rmisc)
+library(Rmisc)
 
 options(bitmapType = "cairo")
 
 setwd("/gpfs1/cl/pbio3990/Transcriptomics/")
 
-#Step 1. Import counts data
+#Step 1. Import counts data--------------------------
 countsTable <- read.table("/gpfs1/cl/pbio3990/Transcriptomics/tonsa_counts.txt",
                           header =T, row.names = 1)
 
@@ -31,7 +31,7 @@ filtered_count_matrix_BASEonly <- countsTable[,conds$FinalTemp == "BASE"]
 filtered_sample_metadata_BASEonly <- conds[conds$FinalTemp == "BASE",]
 rounded_filtered_count_maxtrix <- round(filtered_count_matrix_BASEonly)
 
-#Step 2: Detecting outlier
+#Step 2: Detecting outlier---------------------
 #detecting outlier genes
 gsg <- goodSamplesGenes(t(rounded_filtered_count_maxtrix))
 summary(gsg)
@@ -65,7 +65,7 @@ ggplot(pca_data, aes(PC1,PC2))+
   labs(x = paste0("PC1: ", pca.var.percent[1],"%"),
        y = paste0("PC2: ", pca.var.percent[2], "%"))
 
-#Step 3: Noramlization
+#Step 3: Noramlization-------------------------------
 colData <- row.names(filtered_sample_metadata_BASEonly)
 
 dds_WGCNA <- DESeqDataSetFromMatrix(countData = data_WGCNA,
@@ -80,7 +80,7 @@ dds_norm <- vst(dds_WGCNA_75) # variance stabilization
 norm.counts <- assay(dds_norm) %>% 
   t()
 
-#Step 4 :Network construction
+#Step 4 :Network construction----------------------
 
 #Choose a set of soft-threshold powers
 power <- c(c(1:10), seq(fro = 12, to = 50, by = 2))
@@ -108,3 +108,73 @@ a2 <- ggplot(sft.data, aes(Power, mean.k., label = Power))+
   theme_classic()
 
 grid.arrange(a1,a2, nrow =2)
+
+soft_power <- 26
+temp_cor <- cor
+cor <- WGCNA::cor #set the temp_cor func to use WGCNA's correlation function
+
+norm.counts[] <- sapply(norm.counts, as.numeric)
+
+#blockwiseModules() creates the network and identifies modules based on parameters that we choose
+bwnet26 <- blockwiseModules(norm.counts,
+                            maxBlockSize = 30000,
+                            TOMType = "signed",
+                            power = soft_power,
+                            mergeCutHeight = 0.25,
+                            randomSeed = 1234,
+                            verbose = 3) #TOMType controls  interpreting - and + correlation
+#signed is + and unsigned is - and +
+
+cor <- temp_cor #resets cor() to baseR's cor func instead of using WGCNA's cor func
+
+saveRDS(bwnet26, file = "outputs/bwnet26.rds")
+
+#load the bwnet file in later use:
+#bwnet26 <- readRDS("outputs/bwnet26.rds")
+
+#Step 5: Explore module Eigengenes-------------------------------
+
+module_eigengenes <- bwnet26$MEs
+head(module_eigengenes)
+dim(module_eigengenes)
+
+#get the number of genes for wach module
+table(bwnet26$colors)
+
+#Plot dendrogram and module colors(merge and unmerged)[based on similarity cut off]
+plotDendroAndColors(bwnet26$dendrograms[[1]], 
+                    cbind(bwnet26$unmergedColors, bwnet26$colors),
+                    c("unmerged", "merged"),
+                    dendroLabels = F,
+                    addGuide = T,
+                    hang = 0.03,
+                    guideHang = 0.05)
+
+#Step 6:Correlation of modules with traits-----------------------
+
+#Define the numbers of genes and samples
+nSamples <- nrow(norm.counts)
+nGenes <- ncol(norm.counts)
+
+#Test for a correlation between module eigengenes and trait data
+modules.trait.corr <- cor(module_eigengenes, traitData, use = "p")
+
+#Calculate p-vals for eeach correlation
+module.trait.corr.pvals <- corPvalueStudent(module.trait.corr, nSamples)
+
+#Visualize module-trait association as a heatmap
+heatmap.data <- merge(module_eigengenes, traitData, by = "row.names")
+head(heatmap.data)
+
+#Address error of row.names not being numeric
+heatmap.data <- heatmap.data %>% 
+  column_to_rownames(var = "Row.names")
+
+names(heatmap.data)
+
+#Make pretty heat map of correlations
+CorLevelPlot(heatmap.data,
+             x = names(heatmap.data)[42:44], #the values may chnage based on number of eigengenes
+             y = names(heatmap.data)[1:41],
+             col = c("blue2", "skyblue", "white", "pink", "red"))
+
