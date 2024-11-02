@@ -113,10 +113,57 @@ res_df28 <- res_df28 %>%
     padj.22<0.05 & stat.22>0 ~ "red"
   ))
 
+#contrast D18_A28vsBASE
+res_D18_BASEvsA28 <- as.data.frame(results(dds, contrast = c("group", "D18BASE", "D18A28"), alpha = 0.05))
+
+
+#contrast D22_A28vsBASE
+res_D22_BASEvsA28 <- as.data.frame(results(dds, contrast = c("group", "D22BASE", "D22A28"), alpha = 0.05))
+
+#merge dataframes
+res_df28 <- merge(res_D18_BASEvsA28, res_D22_BASEvsA28, by = "row.names", suffixes = c(".18", ".22"))
+rownames(res_df28) <- res_df28$Row.names
+res_df28 <- res_df28[,-1]
+
+#define color mapping logic with mutate
+res_df28 <- res_df28 %>% 
+  mutate(fill=case_when(
+    padj.18<0.05 & stat.18<0 ~ "turquoise2",
+    padj.18<0.05 & stat.18>0 ~ "magenta1",
+    padj.22<0.05 & stat.22<0 ~ "blue2",
+    padj.22<0.05 & stat.22>0 ~ "red"
+  ))
+
 #Count the number of points per fill color
 color_counts <- res_df28 %>% 
   group_by(fill) %>% 
   summarise(count = n())
+
+label_positions <- data.frame(fill = c("blue2", "magenta1", "red", "turquoise2"),
+                              x_pos=c(1,5,0,-7.5),
+                              y_pos = c(-5,0,9,3))
+
+label_data <- merge(color_counts, label_positions, by = "fill")
+#Plot
+
+plot28 <- ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
+  geom_point(alpha = 0.8) +
+  scale_color_identity()+
+  geom_text(data = label_data, aes(x = x_pos, y = y_pos, label = count, color = fill), size = 5)+
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black")+
+  geom_abline(intercept = 0, slope = -1, linetype = "dashed", color = "grey")+
+  xlim(-10,10) + ylim(-10,10)+
+  labs(x = "Log2FoldChange 28 vs. BASE at 18",
+       y = "Log2FoldChange 28 vs. BASE at 22",
+       title = "How does response to 28 C vary by DevTemp?")+
+  theme_minimal()
+
+
+#Count the number of points per fill color
+color_counts <- res_df28 %>% 
+  group_by(fill) %>% 
+  summarise(count = n())
+
 
 label_positions <- data.frame(fill = c("blue2", "magenta1", "red", "turquoise2"),
                               x_pos=c(1,5,0,-7.5),

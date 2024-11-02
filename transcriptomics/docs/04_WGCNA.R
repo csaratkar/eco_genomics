@@ -111,7 +111,10 @@ grid.arrange(a1,a2, nrow =2)
 
 soft_power <- 26
 temp_cor <- cor
-cor <- WGCNA::cor #set the temp_cor func to use WGCNA's correlation function
+cor <- WGCNA::cor #set the temp_cor func
+
+
+#to use WGCNA's correlation function
 
 norm.counts[] <- sapply(norm.counts, as.numeric)
 
@@ -127,7 +130,7 @@ bwnet26 <- blockwiseModules(norm.counts,
 
 cor <- temp_cor #resets cor() to baseR's cor func instead of using WGCNA's cor func
 
-saveRDS(bwnet26, file = "outputs/bwnet26.rds")
+saveRDS(bwnet26, file = "~/Projects/eco_genomics/transcriptomics/outputs/bwnet26.rds")
 
 #load the bwnet file in later use:
 #bwnet26 <- readRDS("outputs/bwnet26.rds")
